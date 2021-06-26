@@ -81,6 +81,29 @@ def get_centre_display_name(event):
     return next(centre.displayName for centre in config.LEISURE_CENTRES if centre.siteId == event.siteId)
 
 
+@app.template_filter('get_event_booked_places')
+def get_event_booked_places(event):
+    return event.totalPlaces - event.availablePlaces
+
+
+@app.template_filter('get_event_percent_full')
+def get_event_percent_full(event):
+    return (get_event_booked_places(event) / event.totalPlaces) * 100
+
+
+@app.template_filter('get_event_progress_colour')
+def get_event_progress_colour(event):
+    percent_full = get_event_percent_full(event)
+    if percent_full < 50:
+        return '#198754'
+    elif percent_full < 75:
+        return '#ffc107'
+    elif percent_full < 100:
+        return '#fd7e14'
+    else:
+        return '#dc3545'
+
+
 @app.template_filter('get_location_display_name')
 def get_location_display_name(event):
     locations = next(centre for centre in config.LEISURE_CENTRES if centre.siteId == event.siteId).locations
