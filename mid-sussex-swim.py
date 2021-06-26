@@ -21,19 +21,21 @@ def copy_static_files():
 
 def generate_daily_pages(dates):
     for date in dates:
+        rendered = flask.render_template(
+            'daily-events.html',
+            date=date,
+            events=get_events_on_date(date),
+            leisureCentres=config.LEISURE_CENTRES,
+            now=NOW
+        )
         with open(os.path.join(config.OUTPUT_DIR, f'{format_datetime(date, "dateiso")}.html'), 'w') as f:
-            f.write(flask.render_template(
-                'daily-events.html',
-                date=date,
-                events=get_events_on_date(date),
-                leisureCentres=config.LEISURE_CENTRES,
-                now=NOW
-            ))
+            f.write(rendered)
 
 
 def generate_index_page():
+    rendered = flask.render_template('index.html', dates=dates, now=NOW)
     with open(os.path.join(config.OUTPUT_DIR, 'index.html'), 'w') as f:
-        f.write(flask.render_template('index.html', dates=dates, now=NOW))
+        f.write(rendered)
 
 
 def get_events_on_date(date):
