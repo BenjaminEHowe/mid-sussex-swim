@@ -16,11 +16,13 @@
             <div
               class="progress-bar"
               role="progressbar"
-              style="width: {{ ((event.totalPlaces - event.availablePlaces) / event.totalPlaces) * 100 }}%"
-              aria-valuenow="{{ event.totalPlaces - event.availablePlaces }}"
+              style="width: {{ event|get_event_percent_full() }}%; background: {{ event|get_event_progress_colour() }}"
+              aria-valuenow="{{ event|get_event_booked_places() }}"
               aria-valuemin="0"
               aria-valuemax="{{ event.totalPlaces }}"
-            ></div>
+            >
+              {{ event|get_event_booked_places() }}/{{ event.totalPlaces }}
+            </div>
           </div>
           <div class="card-body">
             {{ event.startTime|datetime('timeshort') }}&ndash;{{ event.endTime|datetime('timeshort') }}: {{ event.displayName }} ({{ event|get_location_display_name() }}, {{ event|get_centre_display_name() }})
