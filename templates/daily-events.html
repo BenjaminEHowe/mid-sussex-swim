@@ -20,7 +20,9 @@
               aria-valuenow="{{ event.totalPlaces - event.availablePlaces }}"
               aria-valuemin="0"
               aria-valuemax="{{ event.totalPlaces }}"
-            ></div>
+            >
+              {{ event.totalPlaces - event.availablePlaces }}/{{ event.totalPlaces }}
+            </div>
           </div>
           <div class="card-body">
             {{ event.startTime|datetime('timeshort') }}&ndash;{{ event.endTime|datetime('timeshort') }}: {{ event.displayName }} ({{ event|get_location_display_name() }}, {{ event|get_centre_display_name() }})
