@@ -26,14 +26,14 @@ def generate_daily_pages(dates):
             date=date,
             events=get_events_on_date(date),
             leisureCentres=config.LEISURE_CENTRES,
-            now=NOW
+            now=datetime.datetime.now()
         )
         with open(os.path.join(config.OUTPUT_DIR, f'{format_datetime(date, "dateiso")}.html'), 'w') as f:
             f.write(rendered)
 
 
 def generate_index_page():
-    rendered = flask.render_template('index.html', dates=dates, now=NOW)
+    rendered = flask.render_template('index.html', dates=dates, now=datetime.datetime.now())
     with open(os.path.join(config.OUTPUT_DIR, 'index.html'), 'w') as f:
         f.write(rendered)
 
@@ -112,13 +112,11 @@ def get_location_display_name(event):
     return next(location.displayName for location in locations if location.guid == event.locationGuid)
 
 
-NOW = datetime.datetime.now()
-
-
 if __name__ == "__main__":
     dates = []
+    now = datetime.datetime.now()
     for i in range(config.DAYS_ADVANCE + 1):
-        dates.append(NOW + datetime.timedelta(days=i))
+        dates.append(now + datetime.timedelta(days=i))
     copy_static_files()
     with app.app_context():
         generate_daily_pages(dates)
