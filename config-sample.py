@@ -24,6 +24,8 @@ LEISURE_CENTRES = [
     ]),
 ]
 OUTPUT_DIR = os.path.join(os.pardir, 'httpdocs')
+REQUEST_BACKOFF_BASE = 4
 REQUEST_DELAY_SECONDS = 1
+REQUEST_RETRIES = 3
 STATIC_DIR = 'static'
 SWIM_TIMETABLE_ID = '1c3c1068-2173-4ae4-b7f7-fc6b55da0549'

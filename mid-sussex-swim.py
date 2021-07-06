@@ -6,7 +6,10 @@ import flask
 import os
 import requests
 import shutil
+import sys
 import time
+
+from simplejson.errors import JSONDecodeError
 
 
 def copy_static_files():
@@ -45,8 +48,7 @@ def get_events_on_date(date):
         for location in centre.locations:
             params = {'locationGroupId': location.guid, 'date': date.strftime('%Y/%m/%d')}
             time.sleep(config.REQUEST_DELAY_SECONDS)
-            response = requests.get(url, params=params).json()
-            for event in response:
+            for event in request_json_with_backoff(url, params):
                 events.append(
                     domain.Event(
                         event['DisplayName'],
@@ -60,6 +62,20 @@ def get_events_on_date(date):
                 )
     events.sort(key=lambda event: event.startTime)
     return events
+
+
+def request_json_with_backoff(url, params):
+    for i in range(config.REQUEST_RETRIES):
+        if i != 0:
+            time.sleep(config.REQUEST_BACKOFF_BASE ** i)
+        try:
+            response = requests.get(url, params=params)
+            return response.json()
+        except JSONDecodeError:
+            pass
+    print(f'Unable to obtain JSON from {url} after {config.REQUEST_RETRIES} attempts.', file=sys.stderr)
+    print(f'Last attempt: got HTTP status {response.status_code}, response: {response.text}', file=sys.stderr)
+    raise RuntimeError
 
 
 app = flask.Flask('Mid Sussex Swim')
