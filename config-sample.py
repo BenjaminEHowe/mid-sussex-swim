@@ -1,5 +1,6 @@
 import domain
 
+import logging
 import os
 
 
@@ -23,6 +24,8 @@ LEISURE_CENTRES = [
         domain.Location('e311844f-a091-4baa-94c1-2c0a5876eb63', 'Teaching Pool')
     ]),
 ]
+LOG_FILE = '../logs/msswim.log'
+LOG_LEVEL = logging.INFO
 OUTPUT_DIR = os.path.join(os.pardir, 'httpdocs')
 REQUEST_BACKOFF_BASE = 4
 REQUEST_DELAY_SECONDS = 1
