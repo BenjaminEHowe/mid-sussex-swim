@@ -77,6 +77,7 @@ def request_json_with_backoff(url, params):
             sleepDuration = config.REQUEST_BACKOFF_BASE ** i
             logging.info(f'Previous HTTP request failed, sleeping for {sleepDuration} seconds.')
             time.sleep(sleepDuration)
+        logging.info(f'Sending HTTP request to {url} with params {params}')
         try:
             response = requests.get(url, params=params)
             if response.status_code == 200:
