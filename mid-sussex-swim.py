@@ -82,10 +82,10 @@ def request_json_with_backoff(url, params):
             if response.status_code == 200:
                 return response.json()
             else:
-                logging.warning(f'HTTP request to {url} failed with status code {response.status_code} (body: "{response.text}").')
+                logging.warning(f'HTTP request to {url} with params {params} failed with status code {response.status_code}.')
         except JSONDecodeError:
             pass
-    logging.critical(f'Unable to obtain JSON from {url} after {config.REQUEST_RETRIES} attempts.')
+    logging.critical(f'Unable to obtain JSON from {url} with params {params} after {config.REQUEST_RETRIES} attempts.')
     raise RuntimeError
 
 
