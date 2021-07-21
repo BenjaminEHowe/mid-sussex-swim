@@ -3,13 +3,20 @@ import domain
 
 import datetime
 import flask
+import logging
 import os
 import requests
 import shutil
-import sys
 import time
 
 from simplejson.errors import JSONDecodeError
+
+
+logging.basicConfig(
+    datefmt='%Y-%m-%d %H:%M:%S',
+    filename=config.LOG_FILE,
+    format='%(asctime)s (%(levelname)s): %(message)s',
+    level=config.LOG_LEVEL)
 
 
 def copy_static_files():
@@ -67,14 +74,19 @@ def get_events_on_date(date):
 def request_json_with_backoff(url, params):
     for i in range(config.REQUEST_RETRIES):
         if i != 0:
-            time.sleep(config.REQUEST_BACKOFF_BASE ** i)
+            sleepDuration = config.REQUEST_BACKOFF_BASE ** i
+            logging.info(f'Previous HTTP request failed, sleeping for {sleepDuration} seconds.')
+            time.sleep(sleepDuration)
+        logging.info(f'Sending HTTP request to {url} with params {params}')
         try:
             response = requests.get(url, params=params)
-            return response.json()
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logging.warning(f'HTTP request to {url} with params {params} failed with status code {response.status_code}.')
         except JSONDecodeError:
             pass
-    print(f'Unable to obtain JSON from {url} after {config.REQUEST_RETRIES} attempts.', file=sys.stderr)
-    print(f'Last attempt: got HTTP status {response.status_code}, response: {response.text}', file=sys.stderr)
+    logging.critical(f'Unable to obtain JSON from {url} with params {params} after {config.REQUEST_RETRIES} attempts.')
     raise RuntimeError
 
 
@@ -131,9 +143,11 @@ def get_location_display_name(event):
 if __name__ == "__main__":
     dates = []
     now = datetime.datetime.now()
+    logging.info('Updating...')
     for i in range(config.DAYS_ADVANCE + 1):
         dates.append(now + datetime.timedelta(days=i))
     copy_static_files()
     with app.app_context():
         generate_daily_pages(dates)
         generate_index_page()
+    logging.info('Update complete!')
